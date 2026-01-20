@@ -1,0 +1,3 @@
+# Ensure Dockerfiles always use LF
+Dockerfile text eol=lf
+*.dockerfile text eol=lf
