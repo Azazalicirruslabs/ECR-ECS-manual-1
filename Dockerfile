@@ -1,5 +1,5 @@
-# Stage 1 (build)
-FROM node:18 AS builder
+# Stage 1: Build
+FROM node:18.20.0 AS builder
 
 WORKDIR /build
 
@@ -7,24 +7,25 @@ COPY package*.json ./
 RUN npm install
 
 COPY tsconfig.json ./
-COPY src/ ./src/
+COPY src ./src
 
 RUN npm run build
 
 
-# Stage 2 (run)
-FROM node:18-slim AS runner
+# Stage 2: Runtime
+FROM node:18.20.0-slim AS runner
 
 WORKDIR /app
 
-# Copy package files and install only production dependencies
+ENV NODE_ENV=production
+
 COPY --from=builder /build/package*.json ./
 RUN npm install --omit=dev
 
-# Copy built application
 COPY --from=builder /build/dist ./dist
 
-# Use non-root user
+EXPOSE 8000
+
 USER node
 
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
